@@ -1,17 +1,7 @@
 import streamlit as st
 import pandas as pd
-import boto3
 
 st.title("Data Engineer Job Market Dashboard")
-
-# Explicitly set AWS region
-AWS_REGION = "ap-south-1"
-
-# Create Athena client
-athena = boto3.client(
-    "athena",
-    region_name=AWS_REGION
-)
 
 st.subheader("Job Demand by City")
 
