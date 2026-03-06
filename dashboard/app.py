@@ -4,10 +4,13 @@ import boto3
 
 st.title("Data Engineer Job Market Dashboard")
 
-# AWS Athena client with region specified
+# Explicitly set AWS region
+AWS_REGION = "ap-south-1"
+
+# Create Athena client
 athena = boto3.client(
     "athena",
-    region_name="ap-south-1"
+    region_name=AWS_REGION
 )
 
 st.subheader("Job Demand by City")
