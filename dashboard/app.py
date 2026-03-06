@@ -1,28 +1,86 @@
 import streamlit as st
+import boto3
 import pandas as pd
+import time
+
+AWS_REGION = "ap-south-1"
+DATABASE = "job_market"
+OUTPUT = "s3://aws-athena-query-results-jeeva/"
+
+athena = boto3.client("athena", region_name=AWS_REGION)
+
+def run_query(query):
+
+    response = athena.start_query_execution(
+        QueryString=query,
+        QueryExecutionContext={"Database": DATABASE},
+        ResultConfiguration={"OutputLocation": OUTPUT},
+    )
+
+    query_execution_id = response["QueryExecutionId"]
+
+    while True:
+        status = athena.get_query_execution(QueryExecutionId=query_execution_id)
+
+        state = status["QueryExecution"]["Status"]["State"]
+
+        if state in ["SUCCEEDED", "FAILED", "CANCELLED"]:
+            break
+
+        time.sleep(1)
+
+    results = athena.get_query_results(QueryExecutionId=query_execution_id)
+
+    rows = results["ResultSet"]["Rows"]
+
+    data = []
+
+    for row in rows[1:]:
+        data.append([col.get("VarCharValue") for col in row["Data"]])
+
+    columns = [col["VarCharValue"] for col in rows[0]["Data"]]
+
+    return pd.DataFrame(data, columns=columns)
+
 
 st.title("Data Engineer Job Market Dashboard")
 
-st.subheader("Job Demand by City")
+st.header("Total Jobs Collected")
 
-city_data = {
-    "City": ["Bangalore", "Hyderabad", "Chennai", "Pune"],
-    "Jobs": [45, 30, 20, 14]
-}
+query = """
+SELECT count(*) as total_jobs
+FROM jobs_processed
+"""
 
-city_df = pd.DataFrame(city_data)
+df = run_query(query)
 
-st.bar_chart(city_df.set_index("City"))
+st.metric("Jobs collected", df.iloc[0][0])
 
-st.subheader("Top Data Engineering Skills")
 
-skills_data = {
-    "Skill": ["Python", "SQL", "AWS", "Spark"],
-    "Demand": [80, 75, 60, 40]
-}
+st.header("Top Skills Demand")
 
-skills_df = pd.DataFrame(skills_data)
+query = """
+SELECT skills, count(*) as demand
+FROM jobs_processed
+GROUP BY skills
+ORDER BY demand DESC
+LIMIT 10
+"""
 
-st.bar_chart(skills_df.set_index("Skill"))
+df = run_query(query)
 
-st.success("Dashboard running successfully")
+st.bar_chart(df.set_index("skills"))
+
+
+st.header("Experience Level Demand")
+
+query = """
+SELECT experience_years, count(*) as jobs
+FROM jobs_processed
+GROUP BY experience_years
+ORDER BY experience_years
+"""
+
+df = run_query(query)
+
+st.bar_chart(df.set_index("experience_years"))
