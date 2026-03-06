@@ -1,0 +1,13 @@
+EventBridge
+     ↓
+Scraper Lambda
+     ↓
+S3 Raw Bucket
+     ↓
+S3 Event Trigger
+     ↓
+ETL Lambda
+     ↓
+S3 Processed Bucket
+     ↓
+Athena
