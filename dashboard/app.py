@@ -4,30 +4,32 @@ import boto3
 
 st.title("Data Engineer Job Market Dashboard")
 
-# AWS Athena client with region
+# AWS Athena client with region specified
 athena = boto3.client(
     "athena",
     region_name="ap-south-1"
 )
 
-st.subheader("Sample Insights")
+st.subheader("Job Demand by City")
 
-data = {
+city_data = {
     "City": ["Bangalore", "Hyderabad", "Chennai", "Pune"],
     "Jobs": [45, 30, 20, 14]
 }
 
-df = pd.DataFrame(data)
+city_df = pd.DataFrame(city_data)
 
-st.bar_chart(df.set_index("City"))
+st.bar_chart(city_df.set_index("City"))
 
-st.subheader("Top Skills")
+st.subheader("Top Data Engineering Skills")
 
-skills = {
+skills_data = {
     "Skill": ["Python", "SQL", "AWS", "Spark"],
     "Demand": [80, 75, 60, 40]
 }
 
-skills_df = pd.DataFrame(skills)
+skills_df = pd.DataFrame(skills_data)
 
 st.bar_chart(skills_df.set_index("Skill"))
+
+st.success("Dashboard running successfully")
