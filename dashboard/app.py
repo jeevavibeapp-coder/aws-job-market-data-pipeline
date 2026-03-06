@@ -4,27 +4,30 @@ import boto3
 
 st.title("Data Engineer Job Market Dashboard")
 
-athena = boto3.client("athena")
+# AWS Athena client with region
+athena = boto3.client(
+    "athena",
+    region_name="ap-south-1"
+)
 
-query = """
-SELECT city, COUNT(*) as jobs
-FROM job_market.jobs_processed
-GROUP BY city
-ORDER BY jobs DESC
-LIMIT 10
-"""
-
-st.write("Top Cities for Data Engineer Jobs")
-
-st.code(query)
-
-st.info("Run this query in Athena to visualize job distribution.")
+st.subheader("Sample Insights")
 
 data = {
-    "City": ["Bangalore","Hyderabad","Chennai","Pune"],
-    "Jobs": [45,30,20,14]
+    "City": ["Bangalore", "Hyderabad", "Chennai", "Pune"],
+    "Jobs": [45, 30, 20, 14]
 }
 
 df = pd.DataFrame(data)
 
 st.bar_chart(df.set_index("City"))
+
+st.subheader("Top Skills")
+
+skills = {
+    "Skill": ["Python", "SQL", "AWS", "Spark"],
+    "Demand": [80, 75, 60, 40]
+}
+
+skills_df = pd.DataFrame(skills)
+
+st.bar_chart(skills_df.set_index("Skill"))
