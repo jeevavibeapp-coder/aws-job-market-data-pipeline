@@ -3,7 +3,7 @@ import boto3
 import pandas as pd
 import time
 
-AWS_REGION = "ap-south-1"
+AWS_REGION = "us-east-1"
 DATABASE = "job_market"
 OUTPUT = "s3://aws-athena-query-results-jeeva/"
 
